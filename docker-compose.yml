@@ -1,22 +1,58 @@
-version: '3'
 services:
-  pen-server:
+  pentaho-server:
+    # Constrói o Dockerfile no diretório atual (.)
     build: .
+    # Define o nome da imagem local após o build
     image: lpaschoal/pentaho_server:9.0
+
     container_name: pentaho-server
+    depends_on:
+      - pentaho-db  # Garante que o Pentaho só inicie depois do banco
     networks:
       - rede_pentaho
     restart: always
     ports:
       - "8081:8080"
     volumes:
-      - ./data/hsqldb:/opt/pentaho/pentaho-server/data/hsqldb:rw #Schedule/Quartz/hibernate
-      - ./data/jackrabbit-repository:/opt/pentaho/pentaho-server/pentaho-solutions/system/jackrabbit/repository:rw #login, bancos, JOB, TR
       - ./logs:/opt/pentaho/pentaho-server/tomcat/logs
     environment:
-      - COMPOSE_CONVERT_WINDOWS_PATHS=1 #windows only
       - TZ=America/Sao_Paulo
+      
+      - PENTAHO_DATABASE_TYPE=mysql
+      - PENTAHO_DATABASE_HOST=pentaho-db  # O nome do serviço do banco
+      - PENTAHO_DATABASE_PORT=3306
+      - PENTAHO_DATABASE_NAME=pentaho_repository
+      - PENTAHO_DATABASE_USER=pentaho_user
+      - PENTAHO_DATABASE_PASSWORD=pentaho_password
+      
+      - PENTAHO_JACKRABBIT_DATABASE_HOST=pentaho-db
+      - PENTAHO_JACKRABBIT_DATABASE_PORT=3306
+      - PENTAHO_JACKRABBIT_DATABASE_NAME=pentaho_repository
+      - PENTAHO_JACKRABBIT_DATABASE_USER=pentaho_user
+      - PENTAHO_JACKRABBIT_DATABASE_PASSWORD=pentaho_password
+      
+    ulimits: 
+      nproc: 65536
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  pentaho-db:
+    image: mysql:8.0
+    container_name: pentaho-db
+    networks:
+      - rede_pentaho
+    restart: always
+    volumes:
+      # Mapeia os dados do MySQL para uma pasta local
+      - ./data/mysql:/var/lib/mysql 
+    environment:
+      - MYSQL_DATABASE=pentaho_repository 
+      - MYSQL_USER=pentaho_user           
+      - MYSQL_PASSWORD=pentaho_password   
+      - MYSQL_ROOT_PASSWORD=i1W8Bx9VU0<#
+
 networks:
   rede_pentaho:
-    external:
-      name: network_pentaho
+    # Deixamos o Docker Compose criar e gerenciar a rede
+    driver: bridge

@@ -42,7 +42,7 @@ _**Obs. também é possível:**_
 ```docker inspect```
 ```docker logs --follow (container_id)```
 
-## TOFIX REMOVER
+<!--TOFIX REMOVER-->
 ### run primeira vez (cria container)
 ```docker run -p 127.0.0.1:8081:8080 lpaschoal/pentaho_server:9.0```
 
@@ -67,6 +67,24 @@ _**Obs. também é possível:**_
 ### Customizar container com confs e depois gerar uma imagem (snapshot)
 ```docker commit (container_id)  lpaschoal/pentaho_server_snapshot:2.0```
 
-### Link
+## Link
 (Drivers do MySQL)[https://dev.mysql.com/downloads/file/?id=546177]
 (Download Pentaho Legacy Version)[https://github.com/ambientelivre/legacy-pentaho-ce?tab=readme-ov-file]
+
+## Baixando o driver mysql
+O driver mais atual pode não fucnionar devidor a imcompatibiidade do Java 8
+
+O comando a seguir realizar o Donwload do Driver compativel
+```wget https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.33.zip```
+
+## Desconpacte 
+```unzip mysql-connector-j-8.0.33.zip```
+
+## Mova o driver
+Procure por um arquivo com o final Jar e mova o mesmo para o diretório de libs na root do reposítório
+
+## Remova o lixo
+```rm -rf mysql-connector-j-8.0.33```
+```rm mysql-connector-j-8.0.33.zip```
+
+
