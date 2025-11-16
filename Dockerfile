@@ -1,19 +1,15 @@
-FROM openjdk:8
+FROM eclipse-temurin:8-jdk
 
-MAINTAINER Luan luan.m.paschoal@gmail.com
-LABEL Pentaho='Server 9.0 com drivers postgres e oracle'
+MAINTAINER Renato araujorenato045@gmail.com
+LABEL Pentaho='Server 9.4 com drivers postgres, oracle e mysql'
 
 # Init ENV
-ENV BISERVER_VERSION 9.0
-ENV BISERVER_TAG 9.0.0.0-423
+ENV BISERVER_VERSION 9.4
+ENV BISERVER_TAG 9.4.0.0-343
 ENV PENTAHO_HOME /opt/pentaho
 
-# Apply JAVA_HOME
+# Aplica a JAVA_HOME corretamente
 ENV PENTAHO_JAVA_HOME $JAVA_HOME
-ENV PENTAHO_JAVA_HOME /usr/local/openjdk-8
-ENV JAVA_HOME /usr/local/openjdk-8
-RUN . /etc/environment \
- export JAVA_HOME
 
 # Install Dependences
 RUN apt-get update; apt-get install zip -y; \
@@ -26,7 +22,7 @@ RUN mkdir ${PENTAHO_HOME}; useradd -s /bin/bash -d ${PENTAHO_HOME} pentaho; chow
 # Disable first-time startup prompt
 # Disable daemon mode for Tomcat
 RUN /usr/bin/wget --progress=dot:giga \
-"http://downloads.sourceforge.net/project/pentaho/Pentaho%20${BISERVER_VERSION}/server/pentaho-server-ce-${BISERVER_TAG}.zip" \
+"https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pentaho-server-ce-${BISERVER_TAG}/pentaho-server-ce-${BISERVER_TAG}.zip" \
 -O /tmp/pentaho-server-ce-${BISERVER_TAG}.zip; \
 /usr/bin/unzip -q /tmp/pentaho-server-ce-${BISERVER_TAG}.zip -d $PENTAHO_HOME; \
 rm -f /tmp/pentaho-server-ce-${BISERVER_TAG}.zip $PENTAHO_HOME/pentaho-server/promptuser.sh; \
