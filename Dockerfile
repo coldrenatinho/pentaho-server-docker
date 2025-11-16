@@ -1,10 +1,10 @@
-FROM eclipse-temurin:8-jdk
+FROM eclipse-temurin:8-jdk  ## Versão do Java
 
 MAINTAINER Renato araujorenato045@gmail.com
 LABEL Pentaho='Server 9.4 com drivers postgres, oracle e mysql'
 
 # Init ENV
-ENV BISERVER_VERSION 9.4
+ENV BISERVER_VERSION 9.4 #Versão do Pentaho pode ser alterada coforme os binaŕios, visitar # Link em REAME.md
 ENV BISERVER_TAG 9.4.0.0-343
 ENV PENTAHO_HOME /opt/pentaho
 
