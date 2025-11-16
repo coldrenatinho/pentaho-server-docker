@@ -1,4 +1,5 @@
-FROM eclipse-temurin:8-jdk  ## Versão do Java
+# Versao do Java
+FROM eclipse-temurin:8-jdk  
 
 MAINTAINER Renato araujorenato045@gmail.com
 LABEL Pentaho='Server 9.4 com drivers postgres, oracle e mysql'

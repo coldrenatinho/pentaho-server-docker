@@ -3,7 +3,7 @@ services:
     # Constrói o Dockerfile no diretório atual (.)
     build: .
     # Define o nome da imagem local após o build
-    image: lpaschoal/pentaho_server:9.0
+    image: coldrenatinho/pentaho_server:9.4
 
     container_name: pentaho-server
     depends_on:
@@ -36,6 +36,9 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+
+    extra_hosts: ## Ajusta no Linux para que o container consiga localizar outro containers no mesmo host
+      - "host.docker.internal:host-gateway"
 
   pentaho-db:
     image: mysql:8.0
