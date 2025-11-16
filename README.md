@@ -92,4 +92,25 @@ Procure por um arquivo com o final Jar e mova o mesmo para o diretório de libs 
 ```rm -rf mysql-connector-j-8.0.33```
 ```rm mysql-connector-j-8.0.33.zip```
 
+## Conxão Driver MySQL
+use o perfil "Generic database" (Banco de dados Genérico). 
 
+Siga estes passos:
+
+1. Database Type: Na lista, selecione "Generic database".
+
+Irá aparecer um novo campo "Driver Class Name".
+
+2. Preencha os campos da seguinte forma:
+
+- Connection Name: Nome que quiser
+
+- Connection URL: jdbc:mysql://[host]:[porta]/[Nome do banco de dados]
+
+3. Driver Class Name: com.mysql.cj.jdbc.Driver (Aqui é onde você informa o driver correto)
+
+User Name: [usuario] 
+
+Password: [senha] 
+
+4. Depois de preencher assim, clique em "Test". O "Connection Succeeded" deve aparecer.
