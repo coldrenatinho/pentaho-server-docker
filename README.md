@@ -1,116 +1,263 @@
-# **Pentaho server - Etapas implantação usando docker:**
+# Pentaho Server Docker
 
-1. Enviar para o servidor o pacote
-```git clone https://github.com/coldrenatinho/pentaho-server-docker/tree/master```
+> Implementação dockerizada do Pentaho Server 9.4 para facilitar o deployment e gerenciamento de ETL/BI.
 
-3. Criar imagem (build) do pentaho server 9 baseado no dockerfile 
-```docker-compose build```
+[![Docker](https://img.shields.io/badge/Docker-20.10+-blue.svg)](https://www.docker.com/)
+[![Pentaho](https://img.shields.io/badge/Pentaho-9.4-orange.svg)](https://www.hitachivantara.com/en-us/products/pentaho-platform.html)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-   Caso o servidor não tenha acesso a internet, não será possível criar a imagem, então realizar etapas adicionais antes de rodar:
-   - Gerar imagem em máquina que possui acesso a internet e realizar a exportação da imagem 
-	```docker save``` para um arquivo .tar
-   - Carregar arquivo no servidor 
-	```docker load```
+## 📋 Índice
 
-4. Rodar imagem para criar o container e inicializar 
-```docker-compose up```
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Uso](#uso)
+- [Comandos Docker](#comandos-docker)
+- [Configuração MySQL](#configuração-mysql)
+- [Links Úteis](#links-úteis)
 
-5. Fazer upload do zip de jobs/transformações no pentaho server web (http://ip_servidor:8081/pentaho/Login)
-> Usuário padrão: admin
-> Senha: password
+## 🎯 Sobre o Projeto
 
-7. Ajustar as configurações de conexão de banco e controle de usuário
+Este projeto fornece uma implementação containerizada do Pentaho Server usando Docker e Docker Compose, facilitando o deployment, gerenciamento e versionamento de ambientes ETL/BI.
 
-8. Configurar schedule para execução do JOB
+### Características
 
-**Pronto!**
+- ✅ Pentaho Server 9.4
+- ✅ Suporte a MySQL com drivers compatíveis (Java 8)
+- ✅ Persistência de dados via volumes Docker
+- ✅ Configuração simplificada via Docker Compose
+- ✅ Suporte a ambientes offline
 
-_**Obs. também é possível:**_ 
- - Realizar Commit do container para gerar snapshot.
- - Armazenar a imagem em repositório docker-hub ou nexus, usando o conceito de registrar a imagem.
+## 📦 Pré-requisitos
 
-## Conjunto de comandos docker / compose
+- Docker 20.10+
+- Docker Compose 1.29+
+- 4GB RAM mínimo
+- 10GB espaço em disco
 
-### build (cria imagem)
-```docker build -t coldrenatinho/pentaho_server:9.4 .```
+## 🚀 Instalação
 
-**_Usando compose:_** 
-```docker-compose build```
+### 1. Clonar o repositório
 
-### Verificar imagens/container existentes
-```docker images```
-```docker ps```
-```docker inspect```
-```docker logs --follow (container_id)```
+```bash
+git clone https://github.com/coldrenatinho/pentaho-server-docker.git
+cd pentaho-server-docker
+```
 
-### Verificar logs do Pentaho
-```docker logs -f pentaho-server```
+### 2. Instalar driver MySQL (opcional)
 
-<!--TOFIX REMOVER-->
-### run primeira vez (cria container)
-```docker run -p 127.0.0.1:8081:8080 coldrenhatinho/pentaho_server:9.4```
+O projeto já inclui suporte ao MySQL. Para atualizar o driver:
 
-**_Usando compose:_** 
-```docker-compose up```
+```bash
+# Download do driver compatível com Java 8
+wget https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.33.zip
 
-### Navega pelos arquivos do container
-```docker exec -t -i pentaho-server /bin/bash```
+# Descompactar
+unzip mysql-connector-j-8.0.33.zip
 
-### Rodar container existente
-```docker container start pentaho-server```
+# Mover o driver .jar para a pasta lib
+mv mysql-connector-j-8.0.33/mysql-connector-j-8.0.33.jar lib/
 
-**_Usando compose:_** 
-```docker-compose up```
+# Limpar arquivos temporários
+rm -rf mysql-connector-j-8.0.33 mysql-connector-j-8.0.33.zip
+```
 
-### Parar container existente
-```docker container stop pentaho-server```
+### 3. Build da imagem
 
-**_Usando compose:_** 
-```docker-compose stop```
+```bash
+docker-compose build
+```
 
-### Customizar container com confs e depois gerar uma imagem (snapshot)
-```docker commit (container_id)  lpaschoal/pentaho_server_snapshot:2.0```
+### 4. Iniciar o container
 
-## Link's
-(Drivers do MySQL)[https://dev.mysql.com/downloads/file/?id=546177]
-(Download Pentaho Legacy Version)[https://github.com/ambientelivre/legacy-pentaho-ce?tab=readme-ov-file]
+```bash
+docker-compose up -d
+```
 
-## Baixando o driver mysql
-O driver mais atual pode não fucnionar devidor a imcompatibiidade do Java 8
-> O drivers devem ser alocados na pasta libs, driver compativeis com o Java 8 JDBC
+O servidor estará disponível em: **http://localhost:8081/pentaho/Login**
 
-O comando a seguir realizar o Donwload do Driver compativel
-```wget https://downloads.mysql.com/archives/get/p/3/file/mysql-connector-j-8.0.33.zip```
+**Credenciais padrão:**
+- Usuário: `admin`
+- Senha: `password`
 
-## Desconpacte 
-```unzip mysql-connector-j-8.0.33.zip```
+## 🔧 Configuração
 
-## Mova o driver
-Procure por um arquivo com o final Jar e mova o mesmo para o diretório de libs na root do reposítório
+### Deployment em Ambiente sem Internet
 
-## Remova o lixo
-```rm -rf mysql-connector-j-8.0.33```
-```rm mysql-connector-j-8.0.33.zip```
+Se o servidor não possui acesso à internet:
 
-## Conxão Driver MySQL
-use o perfil "Generic database" (Banco de dados Genérico). 
+```bash
+# 1. Em uma máquina com internet, gere a imagem
+docker-compose build
 
-Siga estes passos:
+# 2. Exporte a imagem para arquivo
+docker save -o pentaho-server.tar coldrenatinho/pentaho_server:9.4
 
-1. Database Type: Na lista, selecione "Generic database".
+# 3. Transfira o arquivo para o servidor de destino
 
-Irá aparecer um novo campo "Driver Class Name".
+# 4. No servidor de destino, carregue a imagem
+docker load -i pentaho-server.tar
 
-2. Preencha os campos da seguinte forma:
+# 5. Inicie o container
+docker-compose up -d
+```
 
-- Connection Name: Nome que quiser
+### Upload de Jobs/Transformações
 
-- Connection URL: jdbc:mysql://[host]:[porta]/[Nome do banco de dados]
+1. Acesse a interface web
+2. Faça login com as credenciais padrão
+3. Navegue até **File → Import**
+4. Selecione o arquivo ZIP com jobs/transformações
+5. Configure os parâmetros de execução
 
-3. Driver Class Name: com.mysql.cj.jdbc.Driver (Aqui é onde você informa o driver correto)
+### Configuração de Agendamento
 
-User Name: [usuario] 
+Configure schedules diretamente na interface web do Pentaho em **Tools → Schedules**.
 
-Password: [senha] 
+## 🐳 Comandos Docker
 
-4. Depois de preencher assim, clique em "Test". O "Connection Succeeded" deve aparecer.
+### Gerenciamento Básico
+
+```bash
+# Iniciar containers
+docker-compose up -d
+
+# Parar containers
+docker-compose stop
+
+# Reiniciar containers
+docker-compose restart
+
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Ver logs do Pentaho
+docker logs -f pentaho-server
+
+# Acessar bash do container
+docker exec -it pentaho-server /bin/bash
+```
+
+### Build Manual
+
+```bash
+# Construir imagem
+docker build -t coldrenatinho/pentaho_server:9.4 .
+
+# Rodar container manualmente
+docker run -d \
+  --name pentaho-server \
+  -p 8081:8080 \
+  -v $(pwd)/data:/biserver-ce/pentaho-server/pentaho-solutions \
+  coldrenatinho/pentaho_server:9.4
+```
+
+### Inspeção e Debug
+
+```bash
+# Listar imagens
+docker images
+
+# Listar containers
+docker ps -a
+
+# Inspecionar container
+docker inspect pentaho-server
+
+# Ver uso de recursos
+docker stats pentaho-server
+```
+
+### Criação de Snapshots
+
+Para salvar configurações customizadas:
+
+```bash
+# Commit do container
+docker commit pentaho-server coldrenatinho/pentaho_server_snapshot:2.0
+
+# Exportar snapshot
+docker save -o pentaho-snapshot.tar coldrenatinho/pentaho_server_snapshot:2.0
+
+# Push para registry (opcional)
+docker tag coldrenatinho/pentaho_server_snapshot:2.0 registry.exemplo.com/pentaho:2.0
+docker push registry.exemplo.com/pentaho:2.0
+```
+
+## 🔌 Configuração MySQL
+
+### Criando Conexão no Pentaho
+
+1. No Pentaho, crie uma nova conexão de banco de dados
+2. **Database Type**: Selecione "Generic database"
+3. Preencha os campos:
+
+| Campo | Valor |
+|-------|-------|
+| **Connection Name** | Nome da sua conexão |
+| **Connection URL** | `jdbc:mysql://[host]:[porta]/[database]` |
+| **Driver Class Name** | `com.mysql.cj.jdbc.Driver` |
+| **User Name** | Seu usuário MySQL |
+| **Password** | Sua senha MySQL |
+
+4. Clique em **Test** para validar
+5. Deve aparecer "Connection Successful"
+
+### Exemplo de URL de Conexão
+
+```
+jdbc:mysql://mysql-server:3306/pentaho_db?useSSL=false&serverTimezone=UTC
+```
+
+### Troubleshooting MySQL
+
+**Erro de timezone:**
+```
+Adicione à URL: ?serverTimezone=UTC
+```
+
+**Erro de SSL:**
+```
+Adicione à URL: ?useSSL=false
+```
+
+**Driver não encontrado:**
+```bash
+# Verifique se o driver está na pasta lib
+ls -la lib/mysql-connector-j-*.jar
+
+# Reconstrua a imagem
+docker-compose build --no-cache
+```
+
+## 📚 Links Úteis
+
+- [Pentaho Legacy Downloads](https://github.com/ambientelivre/legacy-pentaho-ce)
+- [MySQL JDBC Drivers](https://dev.mysql.com/downloads/connector/j/)
+- [Documentação Pentaho](https://help.hitachivantara.com/Documentation/Pentaho)
+- [Docker Hub](https://hub.docker.com/)
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para:
+
+1. Fazer fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abrir um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## ✨ Autor
+
+**coldrenatinho**
+
+- GitHub: [@coldrenatinho](https://github.com/coldrenatinho)
+
+---
+
+⭐ Se este projeto foi útil, considere dar uma estrela!
